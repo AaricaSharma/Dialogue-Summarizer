@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+        }
+    
+        .container {
+            width: 100%;
+            max-width: 720px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(120, 70, 20, 0.15);
+            border: 1px solid #fed7aa;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #c2410c;
+            font-size: 34px;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+    
+        .subtitle {
+            text-align: center;
+            color: #78716c;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+    
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    
+        label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #44403c;
+        }
+    
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            padding: 16px;
+            border: 2px solid #fed7aa;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            background: #fffaf5;
+            color: #292524;
+            transition: all 0.3s ease;
+        }
+    
+        textarea::placeholder {
+            color: #a8a29e;
+        }
+    
+        textarea:focus {
+            border-color: #f97316;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+        }
+    
+        button {
+    width: 100%;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 15px rgba(234, 88, 12, 0.25);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(234, 88, 12, 0.30);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(234, 88, 12, 0.20);
+}
+    
+        #summary-output {
+            margin-top: 28px;
+            background: #fff7ed;
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid #fed7aa;
+            box-shadow: 0 8px 20px rgba(120, 70, 20, 0.08);
+        }
+    
+        #summary-heading {
+            margin: 0 0 12px 0;
+            color: #c2410c;
+            font-size: 20px;
+            font-weight: 700;
+        }
+    
+        #summary-text {
+            color: #44403c;
+            font-size: 16px;
+            line-height: 1.7;
+            margin: 0;
+        }
+    
+        .icon {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+    
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+    
+            .container {
+                padding: 25px 20px;
+                border-radius: 18px;
+            }
+    
+            h1 {
+                font-size: 28px;
+            }
+    
+            textarea {
+                min-height: 180px;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Text Summarizer</h1>
+        <h3>using Hugging Face Transformer</h3>
+        <p>Write or Paste your Content below for quick Summarization</p>
+        <form id="summarization-form">
+            <textarea id="dialogue-input" placeholder="enter your content here..." required></textarea>
+            <button type="submit">
+                Submit
+            </button>
+        </form>
+        <div id="summary-output">
+            <h3 id="summary-heading">Content Summary</h3>
+            <p id="summary-text"></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById("summarization-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+        
+            // Get references to elements
+            const dialogueInput = document.getElementById("dialogue-input");
+            const summaryText = document.getElementById("summary-text");
+            const submitButton = e.target.querySelector("button");
+        
+            const dialogue = dialogueInput.value.trim();
+            if (!dialogue) return;
+        
+            // Show processing message and disable button
+            summaryText.innerText = "Processing...";
+            submitButton.disabled = true;
+        
+            try {
+                // Send dialogue to backend
+                const response = await fetch("/summarize/", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ dialogue }),
+                });
+        
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+        
+                const data = await response.json();
+                summaryText.innerText = data.summary || "No summary returned.";
+            } catch (err) {
+                // Show any error messages
+                summaryText.innerText = `Error: ${err.message}`;
+            } finally {
+                // Re-enable the button
+                submitButton.disabled = false;
+            }
+        });
+        </script>
+    
+</body>
+</html>

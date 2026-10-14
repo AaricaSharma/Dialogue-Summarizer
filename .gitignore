@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# macOS
+.DS_Store
+
+# Large model weights (host on Hugging Face Hub, or remove this line if using Git LFS)
+my_finetuned_t5/
+
+# Training checkpoints and dataset
+checkpoints/
+dataset/
+*.csv
